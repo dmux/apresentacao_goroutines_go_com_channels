@@ -1,0 +1,111 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Concorrência e Scheduler do Go</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/black.min.css">
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+
+        <section>
+          <h2>Concorrência vs Paralelismo em Go</h2>
+          <p>Entenda como o Go lida com milhares de goroutines em aplicações com muito I/O</p>
+          <img src="A_presentation_slide_in_digital_format_features_a_.png" width="700" />
+        </section>
+
+        <section>
+          <h3>Concorrência ≠ Paralelismo</h3>
+          <ul>
+            <li><strong>Concorrência:</strong> alternância de tarefas</li>
+            <li><strong>Paralelismo:</strong> execução simultânea real em múltiplos núcleos</li>
+          </ul>
+          <img src="A_2D_digital_educational_diagram_on_concurrency_an.png" width="700" />
+        </section>
+
+        <section>
+          <h3>Uso intensivo de I/O</h3>
+          <p>Goroutines lidam com operações bloqueantes como cópia de rede sem travar a CPU</p>
+          <img src="A_2D_digital_educational_diagram_illustrates_how_G.png" width="700" />
+        </section>
+
+        <section>
+          <h3>O Scheduler do Go (visão geral)</h3>
+          <ul>
+            <li>Go usa um modelo M:N: múltiplas goroutines para múltiplos threads (OS)</li>
+            <li>Três principais entidades: G (Goroutine), M (Thread), P (Processor)</li>
+            <li>Cada P tem uma fila de goroutines</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>Entidades: G, M, P</h3>
+          <ul>
+            <li><strong>G:</strong> representa uma goroutine</li>
+            <li><strong>M:</strong> mapeia para uma thread de sistema operacional</li>
+            <li><strong>P:</strong> representa o contexto de execução, responsável por escalonar Gs</li>
+          </ul>
+          <p>Scheduler distribui Gs pelas filas de Ps</p>
+        </section>
+
+        <section>
+          <h3>Como o Go gerencia as goroutines</h3>
+          <ul>
+            <li>Quando um G está pronto, ele entra na fila do P</li>
+            <li>O M pega um G da fila e o executa</li>
+            <li>Se o G realiza I/O bloqueante, o M é liberado e outro G pode ser executado</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>Work Stealing</h3>
+          <ul>
+            <li>Se um P estiver ocioso, ele "rouba" goroutines de outros Ps</li>
+            <li>Evita gargalos e mantém balanceamento entre threads</li>
+            <li>Importante para workloads altamente concorrentes</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>Escalonamento cooperativo</h3>
+          <ul>
+            <li>Goroutines não são interrompidas à força</li>
+            <li>O runtime do Go insere pontos de yield para garantir troca de Gs</li>
+            <li>Esses pontos aparecem em chamadas a funções como I/O, select, etc.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>Exemplo prático</h3>
+          <pre><code class="language-go">
+for _, file := range files {
+    go func(f string) {
+        copyOverNetwork(f)
+    }(file)
+}
+          </code></pre>
+          <p>Simples, eficiente, e escalável — o scheduler se encarrega de otimizar</p>
+        </section>
+
+        <section>
+          <h3>Conclusão</h3>
+          <ul>
+            <li>O scheduler do Go é leve, eficiente e projetado para alta concorrência</li>
+            <li>Ideal para tarefas I/O-bound e CPU-bound leves</li>
+            <li>Controle preciso com runtime inteligente e cooperativo</li>
+          </ul>
+        </section>
+
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
+    <script>
+      Reveal.initialize({
+        hash: true
+      });
+    </script>
+  </body>
+</html>
