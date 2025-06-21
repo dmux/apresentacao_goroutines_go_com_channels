@@ -9,6 +9,7 @@ docker-compose up --build bench
 ```
 
 The benchmark runs for 5 minutes against each server and saves a Markdown report inside `results/report.md`.
+An example report is already included in that directory. Run the command above to generate real numbers on your machine.
 
 ## Services
 
