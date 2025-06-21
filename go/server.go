@@ -6,8 +6,12 @@ import (
 )
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	time.Sleep(time.Millisecond)
-	w.Write([]byte("ok"))
+	ch := make(chan string)
+	go func() {
+		time.Sleep(time.Millisecond)
+		ch <- "ok"
+	}()
+	w.Write([]byte(<-ch))
 }
 
 func main() {
