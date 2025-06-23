@@ -1,53 +1,131 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>Concorrência e Scheduler do Go</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/black.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.2.1/reveal.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.2.1/theme/black.min.css"
+    />
   </head>
   <body>
     <div class="reveal">
       <div class="slides">
-
         <section>
-          <h2>Concorrência vs Paralelismo em Go</h2>
-          <p>Entenda como o Go lida com milhares de goroutines em aplicações com muito I/O</p>
-          <img src="A_presentation_slide_in_digital_format_features_a_.png" width="700" />
+          <h3>Concorrência vs Paralelismo em Go</h3>
+          <p>
+            Entenda como o Go lida com milhares de goroutines em aplicações com
+            muito I/O
+          </p>
+          <img src="A_presentation_slide_in_digital_format_features_a_.png"
+          width=500" />
         </section>
 
         <section>
           <h3>Concorrência ≠ Paralelismo</h3>
           <ul>
             <li><strong>Concorrência:</strong> alternância de tarefas</li>
-            <li><strong>Paralelismo:</strong> execução simultânea real em múltiplos núcleos</li>
+            <li>
+              <strong>Paralelismo:</strong> execução simultânea real em
+              múltiplos núcleos
+            </li>
           </ul>
-          <img src="A_2D_digital_educational_diagram_on_concurrency_an.png" width="700" />
+          <img
+            src="A_2D_digital_educational_diagram_on_concurrency_an.png"
+            width="500"
+          />
         </section>
 
         <section>
           <h3>Uso intensivo de I/O</h3>
-          <p>Goroutines lidam com operações bloqueantes como cópia de rede sem travar a CPU</p>
-          <img src="A_2D_digital_educational_diagram_illustrates_how_G.png" width="700" />
+          <p>
+            Goroutines realizam operações bloqueantes de I/O sem impedir que
+            outras goroutines continuem executando, pois o runtime Go gerencia
+            threads automaticamente.
+          </p>
+          <img
+            src="A_2D_digital_educational_diagram_illustrates_how_G.png"
+            width="500"
+          />
         </section>
 
         <section>
           <h3>O Scheduler do Go (visão geral)</h3>
           <ul>
-            <li>Go usa um modelo M:N: múltiplas goroutines para múltiplos threads (OS)</li>
-            <li>Três principais entidades: G (Goroutine), M (Thread), P (Processor)</li>
+            <li>
+              Go usa um modelo M:N: múltiplas goroutines para múltiplos threads
+              (OS)
+            </li>
+            <li>
+              Três principais entidades: G (Goroutine), M (Thread), P
+              (Processor)
+            </li>
             <li>Cada P tem uma fila de goroutines</li>
           </ul>
         </section>
 
         <section>
-          <h3>Entidades: G, M, P</h3>
-          <ul>
-            <li><strong>G:</strong> representa uma goroutine</li>
-            <li><strong>M:</strong> mapeia para uma thread de sistema operacional</li>
-            <li><strong>P:</strong> representa o contexto de execução, responsável por escalonar Gs</li>
-          </ul>
-          <p>Scheduler distribui Gs pelas filas de Ps</p>
+          <h3>
+            Entidades: <span style="color: #61dafb">G</span>,
+            <span style="color: #fbc531">M</span>,
+            <span style="color: #4cd137">P</span>
+          </h3>
+          <div
+            style="
+              display: flex;
+              gap: 40px;
+              justify-content: center;
+              align-items: flex-start;
+              margin-bottom: 20px;
+            "
+          >
+            <div
+              style="
+                background: #222;
+                border-radius: 8px;
+                padding: 18px 24px;
+                min-width: 180px;
+              "
+            >
+              <h4 style="margin-top: 0; color: #61dafb">G</h4>
+              <p style="margin: 0; font-size: 0.65em;">Representa uma <strong>goroutine</strong></p>
+            </div>
+            <div
+              style="
+                background: #222;
+                border-radius: 8px;
+                padding: 18px 24px;
+                min-width: 180px;
+              "
+            >
+              <h4 style="margin-top: 0; color: #fbc531">M</h4>
+              <p style="margin: 0; font-size: 0.65em;"">
+                Mapeia para uma <strong>thread</strong> do sistema operacional
+              </p>
+            </div>
+            <div
+              style="
+                background: #222;
+                border-radius: 8px;
+                padding: 18px 24px;
+                min-width: 180px;
+              "
+            >
+              <h4 style="margin-top: 0; color: #4cd137">P</h4>
+              <p style="margin: 0; font-size: 0.65em;"">
+                Contexto de execução, responsável por
+                <strong>escalonar Gs</strong>
+              </p>
+            </div>
+          </div>
+          <p style="text-align: center; font-size: 1.1em">
+            O scheduler distribui <span style="color: #61dafb">Gs</span> pelas
+            filas de <span style="color: #4cd137">Ps</span>
+          </p>
         </section>
 
         <section>
@@ -55,7 +133,10 @@
           <ul>
             <li>Quando um G está pronto, ele entra na fila do P</li>
             <li>O M pega um G da fila e o executa</li>
-            <li>Se o G realiza I/O bloqueante, o M é liberado e outro G pode ser executado</li>
+            <li>
+              Se o G realiza I/O bloqueante, o M é liberado e outro G pode ser
+              executado
+            </li>
           </ul>
         </section>
 
@@ -72,39 +153,211 @@
           <h3>Escalonamento cooperativo</h3>
           <ul>
             <li>Goroutines não são interrompidas à força</li>
-            <li>O runtime do Go insere pontos de yield para garantir troca de Gs</li>
-            <li>Esses pontos aparecem em chamadas a funções como I/O, select, etc.</li>
+            <li>
+              O runtime do Go insere pontos de yield para garantir troca de Gs
+            </li>
+            <li>
+              Esses pontos aparecem em chamadas a funções como I/O, select, etc.
+            </li>
           </ul>
         </section>
 
         <section>
           <h3>Exemplo prático</h3>
-          <pre><code class="language-go">
-for _, file := range files {
-    go func(f string) {
-        copyOverNetwork(f)
-    }(file)
-}
+          <pre><code class="language-go" style="background: #222; color: #fff;">
+        <span style="color:#dcdcaa;">for</span> _, file := <span style="color:#4ec9b0;">range</span> files {
+            <span style="color:#569cd6;">go</span> <span style="color:#dcdcaa;">func</span>(f <span style="color:#4ec9b0;">string</span>) {
+                copyOverNetwork(f)
+            }(file)
+        }
           </code></pre>
-          <p>Simples, eficiente, e escalável — o scheduler se encarrega de otimizar</p>
+          <p>
+            Simples, eficiente, e escalável — o scheduler se encarrega de
+            otimizar
+          </p>
+        </section>
+
+        <section>
+          <h3>Benchmark: Go vs Python</h3>
+          <p style="font-size: 0.9em; margin-bottom: 30px;">
+            Comparação de performance com operações I/O concorrentes
+          </p>
+          <div style="display: flex; justify-content: space-around; align-items: center;">
+            <div style="text-align: center;">
+              <h4 style="color: #00ADD8; margin-bottom: 15px;">Go</h4>
+              <div style="background: #222; padding: 15px; border-radius: 8px; min-width: 200px;">
+                <p style="margin: 5px 0; font-size: 0.8em;"><strong>39,652</strong> RPS</p>
+                <p style="margin: 5px 0; font-size: 0.8em;"><strong>2.51ms</strong> latência</p>
+                <p style="margin: 5px 0; font-size: 0.8em;"><strong>1</strong> timeout</p>
+                <p style="margin: 5px 0; font-size: 0.8em;"><strong>11.9M</strong> requests</p>
+              </div>
+            </div>
+            <div style="font-size: 2em; color: #999;">vs</div>
+            <div style="text-align: center;">
+              <h4 style="color: #888; margin-bottom: 15px;">Python</h4>
+              <div style="background: #222; padding: 15px; border-radius: 8px; min-width: 200px;">
+                <p style="margin: 5px 0; font-size: 0.8em;"><strong>8,083</strong> RPS</p>
+                <p style="margin: 5px 0; font-size: 0.8em;"><strong>273ms</strong> latência</p>
+                <p style="margin: 5px 0; font-size: 0.8em;"><strong>1,186</strong> timeouts</p>
+                <p style="margin: 5px 0; font-size: 0.8em;"><strong>2.4M</strong> requests</p>
+              </div>
+            </div>
+          </div>
+          <p style="font-size: 0.8em; margin-top: 30px; color: #ccc;">
+            <strong>Resultado:</strong> Go apresentou 4.9x mais requests/segundo com 108x menos latência
+          </p>
+        </section>
+
+        <section>
+          <h3>Configuração do Teste</h3>
+          <div style="font-size: 0.85em;">
+            <h4 style="color: #ccc; margin-bottom: 20px;">Parâmetros Utilizados</h4>
+            <ul style="text-align: left; margin-bottom: 25px;">
+              <li><strong>Ferramenta:</strong> wrk (HTTP benchmarking)</li>
+              <li><strong>Duração:</strong> 5 minutos por teste</li>
+              <li><strong>Conexões:</strong> 100 conexões concorrentes</li>
+              <li><strong>Simulação I/O:</strong> 1ms delay por request</li>
+            </ul>
+          </div>
+        </section>
+
+        <section>
+          <h3>Análise de Performance</h3>
+          <div style="font-family: monospace; font-size: 0.6em; text-align: left; background: #111; padding: 14px; border-radius: 8px;">
+            <p style="color: #ccc; margin-bottom: 10px;"><strong>Requests per Second:</strong></p>
+            <p style="margin: 3px 0;">Go&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #888;">███████████████████████████████</span> 39,652</p>
+            <p style="margin: 3px 0;">Python <span style="color: #666;">█████</span> 8,083</p>
+            
+            <p style="color: #ccc; margin: 14px 0 10px 0;"><strong>Latência (ms):</strong></p>
+            <p style="margin: 3px 0;">Go&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #888;">█</span> 2.51ms</p>
+            <p style="margin: 3px 0;">Python <span style="color: #666;">███████████████████████████████</span> 273ms</p>
+            
+            <p style="color: #ccc; margin: 14px 0 10px 0;"><strong>Confiabilidade:</strong></p>
+            <p style="margin: 3px 0;">Go&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #888;">▌</span> 1 timeout</p>
+            <p style="margin: 3px 0;">Python <span style="color: #666;">███████████████████████████████</span> 1,186 timeouts</p>
+          </div>
+          <p style="font-size: 0.7em; margin-top: 14px; color: #ccc;">
+            <strong>Análise:</strong> Go demonstra superioridade em aplicações concorrentes
+          </p>
+        </section>
+
+        <section>
+          <h3>Fatores de Performance do Go</h3>
+          <div style="font-size: 0.85em;">
+            <ul style="text-align: left;">
+              <li><strong>Goroutines:</strong> Threads leves (~2KB cada)</li>
+              <li><strong>Scheduler M:N:</strong> Múltiplas goroutines por thread</li>
+              <li><strong>Work Stealing:</strong> Balanceamento automático</li>
+              <li><strong>Ausência de GIL:</strong> Paralelismo real em multi-core</li>
+              <li><strong>Runtime eficiente:</strong> Binário otimizado (~5MB)</li>
+            </ul>
+          </div>
         </section>
 
         <section>
           <h3>Conclusão</h3>
-          <ul>
-            <li>O scheduler do Go é leve, eficiente e projetado para alta concorrência</li>
-            <li>Ideal para tarefas I/O-bound e CPU-bound leves</li>
-            <li>Controle preciso com runtime inteligente e cooperativo</li>
-          </ul>
+          <div style="font-size: 0.85em; max-width: 900px; margin: 0 auto;">
+            <div style="margin-bottom: 25px;">
+              <h4 style="color: #ccc; margin-bottom: 15px;">Principais Conceitos</h4>
+              <ul style="text-align: left; margin: 0 0 0 18px; padding: 0;">
+                <li>Scheduler do Go: <strong>leve e eficiente</strong> para <strong>alta concorrência</strong></li>
+                <li>Modelo <strong>M:N</strong> com Work Stealing garante <strong>balanceamento automático</strong></li>
+                <li>Goroutines são <strong>significativamente mais eficientes</strong> que threads tradicionais</li>
+                <li><strong>Escalonamento cooperativo</strong> com runtime inteligente</li>
+              </ul>
+            </div>
+
+            <div style="margin-bottom: 25px;">
+              <h4 style="color: #ccc; margin-bottom: 15px;">Evidências Empíricas</h4>
+              <ul style="text-align: left; margin: 0 0 0 18px; padding: 0;">
+                <li><strong>4.9x</strong> superior em requests/segundo comparado ao Python</li>
+                <li><strong>108x</strong> menor latência em operações I/O</li>
+                <li><strong>99.9%</strong> maior confiabilidade (menos timeouts)</li>
+                <li><strong>Eficiência de recursos:</strong> binário 20x menor</li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 style="color: #ccc; margin-bottom: 15px;">Aplicações Recomendadas</h4>
+              <ul style="text-align: left; margin: 0 0 0 18px; padding: 0;">
+                <li><strong>APIs de alta performance</strong> (&gt;10k RPS)</li>
+                <li><strong>Microserviços</strong> com requisitos de baixa latência</li>
+                <li><strong>Aplicações I/O intensive</strong></li>
+                <li><strong>Sistemas distribuídos</strong> e arquiteturas concorrentes</li>
+                <li><strong>Container workloads</strong> com restrições de recursos</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h3>Considerações Finais</h3>
+          <div style="text-align: center; padding: 40px 20px;">
+            <div style="background: #222; border: 1px solid #444;
+                        padding: 25px; border-radius: 8px; margin-bottom: 30px;">
+              <h4 style="margin: 0; color: #ccc; font-size: 1.1em;">
+                "Concorrência não é apenas sobre fazer mais tarefas simultaneamente,<br/>
+                mas sobre <strong>arquitetar sistemas mais eficientes</strong>"
+              </h4>
+            </div>
+            
+            <p style="font-size: 1em; margin-bottom: 25px; color: #ccc;">
+              Go demonstra que <strong>simplicidade e performance</strong> são objetivos compatíveis
+            </p>
+          </div>
+        </section>
+
+        <section>
+          <h3>Contato</h3>
+          <div style="text-align: center; padding: 30px 20px;">
+            <div style="background: #222; border: 1px solid #444; border-radius: 8px; padding: 30px; margin-bottom: 25px;">
+              <div style="margin-bottom: 25px;">
+                <h4 style="margin: 0; color: #ccc; font-size: 1.2em;">Rafael Sales</h4>
+                <p style="margin: 5px 0; color: #888; font-size: 0.9em;">Software Engineer</p>
+              </div>
+              
+              <div style="display: flex; flex-direction: column; gap: 15px; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <span style="color: #ccc;">Email:</span>
+                  <a href="mailto:rafael.sales@gmail.com" style="color: #00ADD8; text-decoration: none; font-size: 0.9em;">
+                    rafael.sales@gmail.com
+                  </a>
+                </div>
+                
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <span style="color: #ccc;">GitHub:</span>
+                  <a href="https://github.com/dmux" target="_blank" style="color: #00ADD8; text-decoration: none; font-size: 0.9em;">
+                    github.com/dmux
+                  </a>
+                </div>
+                
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <span style="color: #ccc;">LinkedIn:</span>
+                  <a href="https://linkedin.com/in/rfsales" target="_blank" style="color: #00ADD8; text-decoration: none; font-size: 0.9em;">
+                    linkedin.com/in/rfsales
+                  </a>
+                </div>
+              </div>
+            </div>
+            
+            <div style="font-size: 0.8em; color: #888;">
+              <p style="margin: 10px 0;">
+                <strong>Código do benchmark:</strong> Disponível no 
+                <a href="https://github.com/dmux/apresentacao_goroutines_go_com_channels" target="_blank" style="color: #00ADD8; text-decoration: none;">
+                  repositório GitHub
+                </a>
+              </p>
+            </div>
+          </div>
         </section>
 
       </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.2.1/reveal.min.js"></script>
     <script>
       Reveal.initialize({
-        hash: true
+        hash: true,
       });
     </script>
   </body>
